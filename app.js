@@ -194,8 +194,7 @@ function renderDashboard() {
 }
 
 function renderSummaryCards() {
-  const now = new Date();
-  const mk = toMonthKey(now.getFullYear(), now.getMonth());
+  const mk = getChartMonthKey();
   const expenses = loadExpenses();
   const income = loadIncome();
 
@@ -205,6 +204,12 @@ function renderSummaryCards() {
 
   const totalInc = Number(income[mk] || 0);
   const saving = totalInc - totalExp;
+
+  // Update label dengan nama bulan yang sedang ditampilkan
+  const bulan = monthLabel(mk);
+  document.getElementById('label-income').textContent  = `Pendapatan — ${bulan}`;
+  document.getElementById('label-expense').textContent = `Pengeluaran — ${bulan}`;
+  document.getElementById('label-saving').textContent  = `Tabungan — ${bulan}`;
 
   document.getElementById('dash-income').textContent  = formatRpShort(totalInc);
   document.getElementById('dash-expense').textContent = formatRpShort(totalExp);
@@ -220,6 +225,7 @@ function getChartMonthKey() {
 function changeChartMonth(delta) {
   chartMonthOffset += delta;
   renderExpenseChart();
+  renderSummaryCards();
 }
 
 function renderExpenseChart() {
