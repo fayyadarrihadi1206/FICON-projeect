@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FICON — Financial Controller</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- OVERLAY untuk menutup sidebar -->
+  <div id="overlay" class="overlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR / HAMBURGER MENU -->
+  <nav id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <span class="app-logo">💰 FICON</span>
+      <button class="close-btn" onclick="closeSidebar()">✕</button>
+    </div>
+    <ul class="nav-list">
+      <li><a href="#" onclick="navigateTo('dashboard'); return false;" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a></li>
+      <li><a href="#" onclick="navigateTo('add-expense'); return false;" data-page="add-expense">
+        <span class="nav-icon">➕</span> Tambah Pengeluaran
+      </a></li>
+      <li><a href="#" onclick="navigateTo('income'); return false;" data-page="income">
+        <span class="nav-icon">💵</span> Pendapatan
+      </a></li>
+      <li><a href="#" onclick="navigateTo('savings'); return false;" data-page="savings">
+        <span class="nav-icon">🏦</span> Tabungan Bulanan
+      </a></li>
+      <li><a href="#" onclick="navigateTo('total-savings'); return false;" data-page="total-savings">
+        <span class="nav-icon">💎</span> Total Tabungan
+      </a></li>
+    </ul>
+    <div class="sidebar-footer">FICON v1.0 — Financial Controller</div>
+  </nav>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="hamburger" onclick="openSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <span id="topbar-title" class="topbar-title">Dashboard</span>
+    <div id="live-clock" class="live-clock"></div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main id="main-content">
+
+    <!-- PAGE: DASHBOARD -->
+    <section id="page-dashboard" class="page active">
+      <div class="dashboard-top">
+        <div class="calendar-card card">
+          <div class="card-title">📅 Kalender</div>
+          <div id="calendar-container"></div>
+        </div>
+        <div class="summary-cards">
+          <div class="card summary-card income-card">
+            <div id="label-income" class="summary-label">Pendapatan</div>
+            <div id="dash-income" class="summary-value">Rp 0</div>
+          </div>
+          <div class="card summary-card expense-card">
+            <div id="label-expense" class="summary-label">Pengeluaran</div>
+            <div id="dash-expense" class="summary-value">Rp 0</div>
+          </div>
+          <div class="card summary-card saving-card">
+            <div id="label-saving" class="summary-label">Tabungan</div>
+            <div id="dash-saving" class="summary-value">Rp 0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-section card">
+        <div class="chart-header">
+          <button class="nav-btn" id="btn-prev-month" onclick="changeChartMonth(-1)">◀ Sebelumnya</button>
+          <span id="chart-month-label" class="chart-month-label"></span>
+          <button class="nav-btn" id="btn-next-month" onclick="changeChartMonth(1)">Berikutnya ▶</button>
+        </div>
+        <div class="chart-and-category">
+          <div class="chart-wrap">
+            <canvas id="expenseChart"></canvas>
+          </div>
+          <div class="category-panel card">
+            <div class="card-title">🏷️ Top Kategori</div>
+            <div id="category-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: ADD EXPENSE -->
+    <section id="page-add-expense" class="page">
+      <div class="form-card card">
+        <div class="card-title">➕ Tambah Pengeluaran</div>
+        <div class="form-group">
+          <label>Tanggal</label>
+          <input type="date" id="exp-date" class="input-field" />
+        </div>
+        <div class="form-group">
+          <label>Total Pengeluaran (Rp)</label>
+          <input type="number" id="exp-amount" class="input-field" placeholder="Contoh: 50000" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Kategori</label>
+          <input type="text" id="exp-category" class="input-field" placeholder="Contoh: Makan, Transport, Hiburan" list="category-suggestions" />
+          <datalist id="category-suggestions"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Catatan (opsional)</label>
+          <input type="text" id="exp-note" class="input-field" placeholder="Deskripsi singkat..." />
+        </div>
+        <button class="btn-primary" onclick="addExpense()">Simpan Pengeluaran</button>
+        <div id="expense-feedback" class="feedback"></div>
+      </div>
+
+      <div class="card expense-history">
+        <div class="card-title">📋 Riwayat Pengeluaran Bulan Ini</div>
+        <div id="expense-list-container"></div>
+      </div>
+    </section>
+
+    <!-- PAGE: INCOME -->
+    <section id="page-income" class="page">
+      <div class="form-card card">
+        <div class="card-title">💵 Input Pendapatan Bulanan</div>
+        <div class="form-group">
+          <label>Pilih Bulan & Tahun</label>
+          <input type="month" id="income-month" class="input-field" />
+        </div>
+        <div class="form-group">
+          <label>Jumlah Pendapatan (Rp)</label>
+          <input type="number" id="income-amount" class="input-field" placeholder="Contoh: 5000000" min="0" />
+        </div>
+        <button class="btn-primary" onclick="saveIncome()">Simpan Pendapatan</button>
+        <div id="income-feedback" class="feedback"></div>
+      </div>
+      <div class="card income-history">
+        <div class="card-title">📈 Riwayat Pendapatan</div>
+        <div id="income-list-container"></div>
+      </div>
+    </section>
+
+    <!-- PAGE: SAVINGS (Bulanan) -->
+    <section id="page-savings" class="page">
+      <div class="card savings-overview">
+        <div class="card-title">🏦 Tabungan Bulanan</div>
+        <p class="muted-text">Tabungan = Pendapatan awal bulan − Total pengeluaran s.d. hari ini</p>
+        <div id="savings-list"></div>
+      </div>
+    </section>
+
+    <!-- PAGE: TOTAL SAVINGS -->
+    <section id="page-total-savings" class="page">
+      <div class="card total-savings-overview">
+        <div class="card-title">💎 Total Tabungan Kumulatif</div>
+        <p class="muted-text">Akumulasi seluruh tabungan dari semua bulan yang tercatat</p>
+        <div id="total-savings-display"></div>
+        <div class="chart-wrap" style="margin-top:24px">
+          <canvas id="savingsChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
